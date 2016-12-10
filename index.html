@@ -1,1 +1,107 @@
-<h1>hello world</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<body style="margin: 0px;">
+
+    <script>
+
+        var colors=['#809FFF','#80DFFF','#66FFD9','#66FF8C','#9FFF80',
+        '#DFFF80','#FFDF80','#FF9F80','#FF809F','#FF80DF'];
+        var categories=['学校','总类','哲学类','宗教类','自然科学类','应用科学类','社会科学类',
+        '历史地理类','语文类','艺术类'];
+        var width=1200;
+        var height=70;
+
+        var appendCategory=d3.select('body').append('svg')
+                .attr('width',width)
+                .attr('height',height)
+                .style('position','fixed')
+                .style('background','rgba(255,255,255,0.8)');
+        appendCategory.selectAll('text')
+                .data(categories)
+                .enter().append('text')
+                .attr('x',function (d,i) {
+                    return i*120+60;
+                })
+                .attr('y',height/2)
+                .text(function (d) {
+                    return d;
+                })
+                .style('text-align','center');
+        d3.tsv('104_library.txt',function (data) {
+            var dataLength=data.length;
+            data.forEach(function(d,i){
+                var height=150;
+                var row=d3.select('body').append('svg')
+                        .attr('width',width)
+                        .attr('height',height);
+                if(i==0){
+                    row.style('margin-top','50px');
+                }
+                var rowData=[];
+                for(var j =2;j<=10;j++){
+                    var varName='var'+j;
+                    rowData.push(d[varName]);
+                }
+                var universityName=[d['university']];
+
+                var total=rowData[0];
+                row.selectAll('text')
+                        .data(universityName).enter().append('text')
+                        .attr('class','universityName')
+                        .attr('x',30)
+                        .attr('y',height/2)
+                        .attr('font-size','15px')
+                        .text(universityName[0]);
+                //row.exit().remove();
+                row.selectAll('circle')
+                        .data(rowData).enter().append('circle')
+                        .attr('r',function (d) {
+                            return Math.sqrt(d/500)*2;
+                        })
+                        .attr('cx',function (d,i) {
+                            return i*120+200;
+                        })
+                        .attr('cy',function () {
+                            return height/2;
+                        })
+                        .attr('fill',function (d,i) {
+                            return colors[i];
+                        });
+                //console.log(rowData);
+                row.selectAll('text.values').data(rowData)
+                        .enter().append('text')
+                        .attr('x',function (d,i) {
+                            return i*120+177;
+                        })
+                        .attr('y',function () {
+                            return height;
+                        })
+                        .text(function (d) {
+                            return d;
+                        })
+                        .style('font-size','13px')
+                        .style('text-align','center');
+                console.log(dataLength,i);
+                if (i==dataLength-1){
+                    var source=['数据来源：政府资料开放平台 http://data.gov.tw/node/gov/resource/30788'];
+                    row.attr('height',height+100);
+                    row.selectAll('text.source')
+                            .data(source)
+                            .enter().append('text')
+                            .text(function (d) {
+                                return d;
+                            })
+                            .attr('x',300)
+                            .attr('y',230);
+                }
+
+            });
+        });
+    </script>
+</body>
+</html>
